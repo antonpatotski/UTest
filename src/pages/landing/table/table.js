@@ -3,6 +3,9 @@ import Highlighter from "react-highlight-words";
 import { Button, Input, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { mockData as users } from "../../../constants/mockData";
+import { ResizableTitle } from "./resizableTitle";
+
+import './table.scss';
 
 export const UsersTable = () => {
   const [searchText, setSearchText] = useState("");
@@ -64,17 +67,15 @@ export const UsersTable = () => {
           autoEscape
           textToHighlight={text ? text.toString() : ""}
         />
-      ) : (
-        text
-      )
+      ) : ( text )
   });
 
-  const columns = [
+  const [columns, setColumns] = useState([
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      width: '30%',
+      width: 200,
       ...getColumnSearchProps('name'),
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ['descend', 'ascend'],
@@ -83,7 +84,7 @@ export const UsersTable = () => {
       title: 'Age',
       dataIndex: 'age',
       key: 'age',
-      width: '20%',
+      width: 200,
       ...getColumnSearchProps('age'),
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ['descend', 'ascend'],
@@ -92,11 +93,33 @@ export const UsersTable = () => {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
+      width: 200,
       ...getColumnSearchProps('address'),
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ['descend', 'ascend'],
     },
-  ];
+  ]);
 
-  return <Table columns={columns} dataSource={users} pagination={{ pageSize: 5}} />
+  const handleResize = (index) =>
+    (_, { size }) => {
+      const newColumns = [...columns];
+      newColumns[index] = { ...newColumns[index], width: size.width };
+      setColumns(newColumns);
+    };
+  const mergeColumns = columns.map((col, index) => ({
+    ...col,
+    onHeaderCell: (column) => ({
+      width: column.width,
+      onResize: handleResize(index),
+    }),
+  }));
+
+  return (
+    <Table
+      columns={mergeColumns}
+      components={{ header: { cell: ResizableTitle } }}
+      dataSource={users}
+      pagination={{ pageSize: 5}}
+    />
+  );
 }
