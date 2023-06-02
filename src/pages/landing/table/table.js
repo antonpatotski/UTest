@@ -2,7 +2,8 @@ import {useRef, useState} from "react";
 import Highlighter from "react-highlight-words";
 import { Button, Input, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { mockData as users } from "../../../constants/mockData";
+// import { mockData as users } from "../../../constants/mockData";
+import { useUserData } from "../../../hooks/useUserData";
 import { ResizableTitle } from "./resizableTitle";
 
 import './table.scss';
@@ -11,6 +12,7 @@ export const UsersTable = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
+  const [ users, setUsers ] = useUserData();
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
