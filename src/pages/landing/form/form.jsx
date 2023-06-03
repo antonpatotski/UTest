@@ -1,12 +1,13 @@
-import {Button, Form, Input, InputNumber} from 'antd';
+import { Button, Form, Input, InputNumber } from 'antd';
+import { useUserStore } from "../../../store/users";
+
 import './form.scss';
-import { useUserData } from "../../../hooks/useUserData";
 
 export const CRUDForm  = () => {
-  const [ users, setUsers ] = useUserData();
+  const addUser = useUserStore((state) => state.addUser);
   const [form] = Form.useForm();
   const submit = (values) => {
-    setUsers({ action: 'add', data: values });
+    addUser(values);
     form.resetFields();
   };
 
@@ -14,6 +15,7 @@ export const CRUDForm  = () => {
     <Form
       className="form"
       name="basic"
+      form={form}
       layout="vertical"
       initialValues={{ remember: true }}
       onFinish={submit}
@@ -46,7 +48,7 @@ export const CRUDForm  = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="form-button">
-          Add
+          Set data
         </Button>
       </Form.Item>
     </Form>

@@ -1,124 +1,22 @@
-import {useRef, useState} from "react";
-import Highlighter from "react-highlight-words";
-import { Button, Input, Space, Table } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
-// import { mockData as users } from "../../../constants/mockData";
-import { useUserData } from "../../../hooks/useUserData";
+import { useState } from "react";
+import { Table } from "antd";
+import { useUserStore } from "../../../store/users";
 import { ResizableTitle } from "./resizableTitle";
+import { useTableSearch } from "./useTableSearch";
+import { COLUMNS } from "./columns";
 
 import './table.scss';
+import {useResizableColumns} from "./useResize";
 
 export const UsersTable = () => {
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef(null);
-  const [ users, setUsers ] = useUserData();
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
-  };
-
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : null }} />
-    ),
-    onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) setTimeout(() => searchInput.current?.select(), 100);
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : ( text )
-  });
-
-  const [columns, setColumns] = useState([
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      width: 200,
-      ...getColumnSearchProps('name'),
-      sorter: (a, b) => a.address.length - b.address.length,
-      sortDirections: ['descend', 'ascend'],
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
-      width: 200,
-      ...getColumnSearchProps('age'),
-      sorter: (a, b) => a.address.length - b.address.length,
-      sortDirections: ['descend', 'ascend'],
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-      width: 200,
-      ...getColumnSearchProps('address'),
-      sorter: (a, b) => a.address.length - b.address.length,
-      sortDirections: ['descend', 'ascend'],
-    },
-  ]);
-
-  const handleResize = (index) =>
-    (_, { size }) => {
-      const newColumns = [...columns];
-      newColumns[index] = { ...newColumns[index], width: size.width };
-      setColumns(newColumns);
-    };
-  const mergeColumns = columns.map((col, index) => ({
-    ...col,
-    onHeaderCell: (column) => ({
-      width: column.width,
-      onResize: handleResize(index),
-    }),
-  }));
+  const getColumnSearchProps = useTableSearch();
+  const users = useUserStore((state) => state.users);
+  const [columns, setColumns] = useState(COLUMNS.map(e => ({ ...e, ...getColumnSearchProps(e.key) })));
+  const updatedColumns = useResizableColumns(columns, setColumns);
 
   return (
     <Table
-      columns={mergeColumns}
+      columns={updatedColumns}
       components={{ header: { cell: ResizableTitle } }}
       dataSource={users}
       pagination={{ pageSize: 5}}
