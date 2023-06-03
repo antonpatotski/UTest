@@ -1,4 +1,7 @@
 export const ROUTE_PATH = {
   home: '/',
-  itemInfo: '/itemInfo'
+  itemInfo: {
+    path: '/itemInfo',
+    param: 'userId'
+  }
 }

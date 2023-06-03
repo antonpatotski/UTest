@@ -1,21 +1,11 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button, Input, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
 
 export const useTableSearch = () => {
   const searchInput = useRef(null);
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
-  };
+  const handleSearch = (selectedKeys, confirm) => { confirm() };
+  const handleReset = (clearFilters) => { clearFilters() };
 
   return (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -54,15 +44,6 @@ export const useTableSearch = () => {
     onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
     onFilterDropdownOpenChange: (visible) => {
       if (visible) setTimeout(() => searchInput.current?.select(), 100);
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : ( text )
+    }
   });
 }

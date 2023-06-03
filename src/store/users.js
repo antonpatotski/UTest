@@ -3,25 +3,24 @@ import { mockData } from "../constants/mockData";
 
 const users = JSON.parse(localStorage.getItem('users') || null) || mockData;
 
-const setNewDataToStorage = (data) => {
-  localStorage.setItem('users', JSON.stringify(data));
-}
 export const useUserStore = create((set) => ({
   users,
+  userForEdit: null,
   addUser: (newUser) => set(({ users }) => {
     const usersCopy = [ ...users ];
     const newUserItem = { ...newUser, key: usersCopy.length + 1 };
     usersCopy.push(newUserItem);
-    setNewDataToStorage(usersCopy);
 
     return ({ users: usersCopy });
   }),
   deleteUser: (userKey) => set(({ users }) => {
     const indexForDelete = users.findIndex(({ key }) => key === userKey);
-    const updatedData = [ ...users ].splice(indexForDelete, 1);
-    setNewDataToStorage(updatedData);
+    const usersCopy = [ ...users ];
+    usersCopy.splice(indexForDelete, 1);
 
-    return ({ users: updatedData })
+    console.log(users, usersCopy);
+
+    return ({ users: usersCopy })
   }),
   editUser: (data) => set(({ users }) => {
     const indexForUpdate = users.findIndex(({ key }) => key === data.key);
@@ -30,5 +29,10 @@ export const useUserStore = create((set) => ({
     usersCopy[[indexForUpdate]] = { ...item, ...data };
 
     return ({ users: usersCopy })
-  })
+  }),
+  setUserForEdit: (key) => set({ userForEdit: key })
 }));
+
+useUserStore.subscribe((state) => {
+  localStorage.setItem('users', JSON.stringify(state.users));
+})

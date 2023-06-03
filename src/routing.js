@@ -7,7 +7,7 @@ export const Routing = () => (
   <Routes>
     <Route path={ROUTE_PATH.home} >
       <Route index element={<Landing />} />
-      <Route path={ROUTE_PATH.itemInfo} element={<ItemInfo />} />
+      <Route path={`${ROUTE_PATH.itemInfo.path}/:${ROUTE_PATH.itemInfo.param}`} element={<ItemInfo />} />
     </Route>
   </Routes>
 )
