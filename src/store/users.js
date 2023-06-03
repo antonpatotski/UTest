@@ -19,8 +19,6 @@ export const useUserStore = create((set, get) => ({
     const usersCopy = [ ...users ];
     usersCopy.splice(indexForDelete, 1);
 
-    console.log(users, usersCopy);
-
     return ({ users: usersCopy })
   }),
   editUser: (data) => set(({ users }) => {
