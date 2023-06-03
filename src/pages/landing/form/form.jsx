@@ -1,13 +1,25 @@
+import { useEffect } from "react";
 import { Button, Form, Input, InputNumber } from 'antd';
 import { useUserStore } from "../../../store/users";
 
 import './form.scss';
 
 export const CRUDForm  = () => {
-  const addUser = useUserStore((state) => state.addUser);
+  const { addUser, userForEdit, users, editUser } = useUserStore((state) => state);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (userForEdit !== null) {
+      form.setFieldsValue(users.find(e => e.key === userForEdit))
+    }
+  }, [ userForEdit, form, users ])
   const submit = (values) => {
-    addUser(values);
+    if (userForEdit !== null) {
+      editUser({ ...values, key: userForEdit });
+    } else {
+      addUser(values);
+    }
+
     form.resetFields();
   };
 
@@ -48,7 +60,7 @@ export const CRUDForm  = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="form-button">
-          Set data
+          { userForEdit ? 'Edit' : 'Add' }
         </Button>
       </Form.Item>
     </Form>

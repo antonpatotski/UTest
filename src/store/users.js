@@ -3,9 +3,10 @@ import { mockData } from "../constants/mockData";
 
 const users = JSON.parse(localStorage.getItem('users') || null) || mockData;
 
-export const useUserStore = create((set) => ({
+export const useUserStore = create((set, get) => ({
   users,
   userForEdit: null,
+  setUserForEdit: (key) => set({ userForEdit: key }),
   addUser: (newUser) => set(({ users }) => {
     const usersCopy = [ ...users ];
     const newUserItem = { ...newUser, key: usersCopy.length + 1 };
@@ -27,10 +28,10 @@ export const useUserStore = create((set) => ({
     const item = users[indexForUpdate];
     const usersCopy = [ ...users ];
     usersCopy[[indexForUpdate]] = { ...item, ...data };
+    get().setUserForEdit(null);
 
     return ({ users: usersCopy })
   }),
-  setUserForEdit: (key) => set({ userForEdit: key })
 }));
 
 useUserStore.subscribe((state) => {
